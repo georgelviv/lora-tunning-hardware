@@ -81,7 +81,7 @@ class LoraHardware():
     self.pending_futures["CONFIG_GET"] = future
     msg = format_msg("CONFIG_GET")
     self.write_serial(msg)
-    action =  await future
+    action = await future
     return action
   
   async def ping(self, id: int) -> State:
@@ -92,13 +92,14 @@ class LoraHardware():
     state = await future
     return state
   
-  async def config_sync(self, id: int, params: Action) -> None:
+  async def config_sync(self, id: int, params: Action) -> bool:
     configs = list(params.items())
     future = self.loop.create_future()
     self.pending_futures['CONFIG_SYNC'] = future
     msg = format_msg("CONFIG_SYNC", [("ID", id), *configs])
     self.write_serial(msg)
-    return await future
+    result = await future
+    return result
   
   def serial_handler(self, msg: str):
     command, params = parse_msg(msg)
@@ -122,16 +123,16 @@ class LoraHardware():
           future = self.pending_futures.pop("CONFIG_SYNC", None)
           if future and not future.done():
             parsed_params = map_response_to_state(params)
-            self.loop.call_soon_threadsafe(future.set_result, parsed_params)
+            self.loop.call_soon_threadsafe(future.set_result, True)
         case "CONFIG_SYNC_CHECK_NO_ACK":
           future = self.pending_futures.pop("CONFIG_SYNC", None)
           if future and not future.done():
-            self.loop.call_soon_threadsafe(future.set_result, None)
+            self.loop.call_soon_threadsafe(future.set_result, False)
         case "CONFIG_SYNC_NO_ACK":
           future = self.pending_futures.pop("CONFIG_SYNC", None)
           if future and not future.done():
             self.logger.info(f'Cannot sync CONFIG_SYNC_NO_ACK last action: {self.sent_history[-1]}')
-            self.loop.call_soon_threadsafe(future.set_result, None)
+            self.loop.call_soon_threadsafe(future.set_result, False)
         case "CONFIG_SYNC_ACK_NO_ACK":
           future = self.pending_futures.pop("CONFIG_SYNC", None)
           if future and not future.done():

@@ -54,7 +54,9 @@ def map_response_to_state(response: List[Tuple[str, float]]) -> State:
     "RSSI": float(data.get("RSSI", 0.0)),
     "SNR": float(data.get("SNR", 0.0)),
     "TOA": float(data.get("TOA", 0.0)),
+    "RTOA": float(data.get("RTOA", 0.0)),
     "BPS": float(data.get("BPS", 0.0)),
     "CHC": float(data.get("CHC", 0.0)),
-    "ATT": int(data.get("ATT", 0.0))
+    "ATT": int(data.get("ATT", 0.0)),
+    "ETX": int(data.get("ETX", 0.0))
   }
