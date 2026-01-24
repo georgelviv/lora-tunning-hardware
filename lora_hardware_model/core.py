@@ -7,6 +7,10 @@ from .models import Action, State
 from .utils import format_msg, parse_msg, map_config_to_action, map_response_to_state
 
 class LoraHardwareModel():
+  @property
+  def name(self) -> str:
+    return "hardware"
+
   def __init__(self, logger: logging.Logger, port_filter: str = ""):
     self.port_filter = port_filter
     self.logger = logger
